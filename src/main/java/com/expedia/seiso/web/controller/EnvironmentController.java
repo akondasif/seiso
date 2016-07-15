@@ -14,16 +14,16 @@ import com.expedia.seiso.web.resource.ServiceInstanceResource;
 @BasePathAwareController
 @RequestMapping("/environments")
 public class EnvironmentController {
-	
+
 	@Autowired
 	EnvironmentService envService;
-	
+
 	@RequestMapping(
 			value = "/{id}/serviceInstances",
 			method = RequestMethod.GET,
 			params = "mode=nodeDetails")
 	@ResponseBody
-	public Resources<ServiceInstanceResource> getServiceInstances(@PathVariable("id") Long id) {;
+	public Resources<ServiceInstanceResource> getServiceInstances(@PathVariable("id") Long id) {
 		return envService.getServiceInstances(id);
 	}
 }
