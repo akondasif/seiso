@@ -2,7 +2,7 @@
 --
 -- Host: 127.0.0.1    Database: seiso
 -- ------------------------------------------------------
--- Server version	5.6.26
+-- Server version	5.6.22-log
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -51,7 +51,7 @@ CREATE TABLE `dashboard` (
   UNIQUE KEY `ukey` (`ukey`),
   KEY `source_id` (`source_id`),
   CONSTRAINT `dashboard_source_id` FOREIGN KEY (`source_id`) REFERENCES `source` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -74,7 +74,7 @@ CREATE TABLE `data_center` (
   KEY `source_id` (`source_id`),
   CONSTRAINT `data_center_region_id` FOREIGN KEY (`region_id`) REFERENCES `region` (`id`),
   CONSTRAINT `data_center_source_id` FOREIGN KEY (`source_id`) REFERENCES `source` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -110,7 +110,7 @@ CREATE TABLE `endpoint` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `service_instance_port_id` int(10) unsigned NOT NULL,
   `node_ip_address_id` int(10) unsigned NOT NULL,
-  `rotation_status_id` tinyint(3) unsigned DEFAULT NULL,
+  `rotation_status_id` tinyint(3) unsigned NOT NULL,
   `source_id` int(10) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `nip_id_sip_id` (`node_ip_address_id`,`service_instance_port_id`),
@@ -121,7 +121,7 @@ CREATE TABLE `endpoint` (
   CONSTRAINT `endpoint_rotation_status_id` FOREIGN KEY (`rotation_status_id`) REFERENCES `rotation_status` (`id`),
   CONSTRAINT `endpoint_service_instance_port_id` FOREIGN KEY (`service_instance_port_id`) REFERENCES `service_instance_port` (`id`),
   CONSTRAINT `endpoint_source_id` FOREIGN KEY (`source_id`) REFERENCES `source` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=168 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -143,7 +143,7 @@ CREATE TABLE `environment` (
   UNIQUE KEY `name` (`name`),
   KEY `source_id` (`source_id`),
   CONSTRAINT `environment_source_id` FOREIGN KEY (`source_id`) REFERENCES `source` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -205,7 +205,7 @@ CREATE TABLE `health_status` (
   KEY `source_id` (`source_id`),
   CONSTRAINT `health_status_source_id` FOREIGN KEY (`source_id`) REFERENCES `source` (`id`),
   CONSTRAINT `health_status_status_type` FOREIGN KEY (`status_type_id`) REFERENCES `status_type` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -225,7 +225,7 @@ CREATE TABLE `infrastructure_provider` (
   UNIQUE KEY `name` (`name`),
   KEY `source_id` (`source_id`),
   CONSTRAINT `infrastructure_provider_source_id` FOREIGN KEY (`source_id`) REFERENCES `source` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -246,7 +246,7 @@ CREATE TABLE `ip_address_role` (
   KEY `source_id` (`source_id`),
   CONSTRAINT `ip_address_role_service_instance_id` FOREIGN KEY (`service_instance_id`) REFERENCES `service_instance` (`id`),
   CONSTRAINT `ip_address_role_source_id` FOREIGN KEY (`source_id`) REFERENCES `source` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=53 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -270,7 +270,7 @@ CREATE TABLE `load_balancer` (
   KEY `source_id` (`source_id`),
   CONSTRAINT `load_balancer_data_center_id` FOREIGN KEY (`data_center_id`) REFERENCES `data_center` (`id`),
   CONSTRAINT `load_balancer_source_id` FOREIGN KEY (`source_id`) REFERENCES `source` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -283,6 +283,7 @@ DROP TABLE IF EXISTS `machine`;
 CREATE TABLE `machine` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(250) NOT NULL,
+  `serial_number` varchar(80) DEFAULT NULL,
   `hostname` varchar(250) DEFAULT NULL,
   `domain` varchar(250) DEFAULT NULL,
   `os` varchar(80) DEFAULT NULL,
@@ -307,7 +308,7 @@ CREATE TABLE `machine` (
   KEY `source_id` (`source_id`),
   CONSTRAINT `machine_rotation_status_id` FOREIGN KEY (`rotation_status_id`) REFERENCES `rotation_status` (`id`),
   CONSTRAINT `machine_source_id` FOREIGN KEY (`source_id`) REFERENCES `source` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=71 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -321,25 +322,28 @@ CREATE TABLE `node` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(80) NOT NULL,
   `description` varchar(250) DEFAULT NULL,
-  `version` varchar(128) DEFAULT NULL,
+  `version` int(10) unsigned NOT NULL,
+  `build_version` varchar(128) DEFAULT NULL,
   `service_instance_id` int(10) unsigned NOT NULL,
   `machine_id` int(10) unsigned DEFAULT NULL,
-  `health_status_id` tinyint(3) unsigned DEFAULT NULL,
-  `aggregate_rotation_status_id` tinyint(3) unsigned DEFAULT NULL,
+  `health_status_id` tinyint(3) unsigned NOT NULL,
+  `health_status_link` varchar(2000) DEFAULT NULL,
+  `health_status_reason` varchar(250) DEFAULT NULL,
+  `aggregate_rotation_status_id` tinyint(3) unsigned NOT NULL,
   `source_id` int(10) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`),
   KEY `service_instance_id` (`service_instance_id`),
   KEY `machine_id` (`machine_id`),
+  KEY `health_status_id` (`health_status_id`),
   KEY `source_id` (`source_id`),
   KEY `aggregate_rotation_status_id` (`aggregate_rotation_status_id`),
-  KEY `health_status_id` (`health_status_id`),
   CONSTRAINT `node_aggregate_rotation_status_id` FOREIGN KEY (`aggregate_rotation_status_id`) REFERENCES `rotation_status` (`id`),
   CONSTRAINT `node_health_status_id` FOREIGN KEY (`health_status_id`) REFERENCES `health_status` (`id`),
   CONSTRAINT `node_machine_id` FOREIGN KEY (`machine_id`) REFERENCES `machine` (`id`),
   CONSTRAINT `node_service_instance_id` FOREIGN KEY (`service_instance_id`) REFERENCES `service_instance` (`id`),
   CONSTRAINT `node_source_id` FOREIGN KEY (`source_id`) REFERENCES `source` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=85 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -354,8 +358,8 @@ CREATE TABLE `node_ip_address` (
   `node_id` int(10) unsigned NOT NULL,
   `ip_address_role_id` int(10) unsigned NOT NULL,
   `ip_address` varchar(20) NOT NULL,
-  `rotation_status_id` tinyint(3) unsigned DEFAULT NULL,
-  `aggregate_rotation_status_id` tinyint(3) unsigned DEFAULT NULL,
+  `rotation_status_id` tinyint(3) unsigned NOT NULL,
+  `aggregate_rotation_status_id` tinyint(3) unsigned NOT NULL,
   `source_id` int(10) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `node_id_ip_address_role_id` (`node_id`,`ip_address_role_id`),
@@ -368,7 +372,7 @@ CREATE TABLE `node_ip_address` (
   CONSTRAINT `node_ip_address_node_id` FOREIGN KEY (`node_id`) REFERENCES `node` (`id`),
   CONSTRAINT `node_ip_address_rotation_status_id` FOREIGN KEY (`rotation_status_id`) REFERENCES `rotation_status` (`id`),
   CONSTRAINT `node_ip_address_source_id` FOREIGN KEY (`source_id`) REFERENCES `source` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=85 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -405,7 +409,7 @@ CREATE TABLE `person` (
   KEY `source_id` (`source_id`),
   CONSTRAINT `person_manager_id` FOREIGN KEY (`manager_id`) REFERENCES `person` (`id`),
   CONSTRAINT `person_source_id` FOREIGN KEY (`source_id`) REFERENCES `source` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -445,7 +449,7 @@ CREATE TABLE `region` (
   KEY `source_id` (`source_id`),
   CONSTRAINT `region_provider_id` FOREIGN KEY (`provider_id`) REFERENCES `infrastructure_provider` (`id`),
   CONSTRAINT `region_source_id` FOREIGN KEY (`source_id`) REFERENCES `source` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -463,7 +467,7 @@ CREATE TABLE `role` (
   UNIQUE KEY `name` (`name`),
   KEY `source_id` (`source_id`),
   CONSTRAINT `role_source_id` FOREIGN KEY (`source_id`) REFERENCES `source` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -486,7 +490,7 @@ CREATE TABLE `rotation_status` (
   KEY `status_type_id` (`status_type_id`),
   KEY `source_id` (`source_id`),
   CONSTRAINT `rotation_status_source_id` FOREIGN KEY (`source_id`) REFERENCES `source` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -518,7 +522,7 @@ CREATE TABLE `service` (
   CONSTRAINT `service_owner_id` FOREIGN KEY (`owner_id`) REFERENCES `person` (`id`),
   CONSTRAINT `service_source_id` FOREIGN KEY (`source_id`) REFERENCES `source` (`id`),
   CONSTRAINT `service_type_id` FOREIGN KEY (`type_id`) REFERENCES `service_type` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -539,7 +543,7 @@ CREATE TABLE `service_group` (
   UNIQUE KEY `name` (`name`),
   KEY `source_id` (`source_id`),
   CONSTRAINT `service_group_source_id` FOREIGN KEY (`source_id`) REFERENCES `source` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -551,7 +555,7 @@ DROP TABLE IF EXISTS `service_instance`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `service_instance` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `ukey` varchar(40) NOT NULL,
+  `ukey` varchar(120) DEFAULT NULL,
   `description` varchar(250) DEFAULT NULL,
   `service_id` int(10) unsigned NOT NULL,
   `environment_id` smallint(5) unsigned NOT NULL,
@@ -573,7 +577,7 @@ CREATE TABLE `service_instance` (
   CONSTRAINT `service_instance_load_balancer_id` FOREIGN KEY (`load_balancer_id`) REFERENCES `load_balancer` (`id`),
   CONSTRAINT `service_instance_service_id` FOREIGN KEY (`service_id`) REFERENCES `service` (`id`),
   CONSTRAINT `service_instance_source_id` FOREIGN KEY (`source_id`) REFERENCES `source` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=53 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -592,7 +596,7 @@ CREATE TABLE `service_instance_dashboard` (
   KEY `dashbaord_id` (`dashboard_id`),
   CONSTRAINT `sid_dashboard_id` FOREIGN KEY (`dashboard_id`) REFERENCES `dashboard` (`id`),
   CONSTRAINT `sid_service_instance_id` FOREIGN KEY (`service_instance_id`) REFERENCES `service_instance` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -636,7 +640,7 @@ CREATE TABLE `service_instance_port` (
   KEY `source_id` (`source_id`),
   CONSTRAINT `service_instance_port_source_id` FOREIGN KEY (`source_id`) REFERENCES `source` (`id`),
   CONSTRAINT `sip_service_instance_id` FOREIGN KEY (`service_instance_id`) REFERENCES `service_instance` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=83 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -655,7 +659,7 @@ CREATE TABLE `service_instance_seyren_check` (
   KEY `seyren_check_id` (`seyren_check_id`),
   CONSTRAINT `sisc_service_instance_id` FOREIGN KEY (`service_instance_id`) REFERENCES `service_instance` (`id`),
   CONSTRAINT `sisc_seyren_check_id` FOREIGN KEY (`seyren_check_id`) REFERENCES `seyren_check` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -676,7 +680,7 @@ CREATE TABLE `service_type` (
   UNIQUE KEY `name` (`name`),
   KEY `source_id` (`source_id`),
   CONSTRAINT `service_type_source_id` FOREIGN KEY (`source_id`) REFERENCES `source` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -704,7 +708,7 @@ CREATE TABLE `seyren_check` (
   KEY `data_source_id` (`source_id`),
   KEY `source_id` (`source_id`),
   CONSTRAINT `seyren_check_source_id` FOREIGN KEY (`source_id`) REFERENCES `source` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -724,7 +728,7 @@ CREATE TABLE `source` (
   UNIQUE KEY `base_uri` (`base_uri`),
   KEY `source_id` (`source_id`),
   CONSTRAINT `source_source_id` FOREIGN KEY (`source_id`) REFERENCES `source` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -745,7 +749,7 @@ CREATE TABLE `status_type` (
   UNIQUE KEY `name` (`name`),
   KEY `source_id` (`source_id`),
   CONSTRAINT `status_type_source_id` FOREIGN KEY (`source_id`) REFERENCES `source` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -765,7 +769,7 @@ CREATE TABLE `user` (
   UNIQUE KEY `username` (`username`),
   KEY `source_id` (`source_id`),
   CONSTRAINT `user_source_id` FOREIGN KEY (`source_id`) REFERENCES `source` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -787,7 +791,7 @@ CREATE TABLE `user_role` (
   CONSTRAINT `user_role_role_id` FOREIGN KEY (`role_id`) REFERENCES `role` (`id`),
   CONSTRAINT `user_role_source_id` FOREIGN KEY (`source_id`) REFERENCES `source` (`id`),
   CONSTRAINT `user_role_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -798,5 +802,3 @@ CREATE TABLE `user_role` (
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-
--- Dump completed on 2015-09-21 13:08:13

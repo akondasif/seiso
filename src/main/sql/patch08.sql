@@ -1,1 +1,0 @@
-ALTER TABLE node MODIFY health_status_link varchar(2000);
