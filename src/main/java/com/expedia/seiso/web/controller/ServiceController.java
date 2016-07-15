@@ -14,16 +14,16 @@ import com.expedia.seiso.web.resource.ServiceInstanceResource;
 @BasePathAwareController
 @RequestMapping("/services")
 public class ServiceController {
-	
+
 	@Autowired
 	ServiceService serviceService;
 
 	@RequestMapping(
-			value = "/{id}/serviceInstances", 
+			value = "/{id}/serviceInstances",
 			method = RequestMethod.GET,
 			params = "mode=nodeDetails")
 	@ResponseBody
-	public Resources<ServiceInstanceResource> getServiceInstances(@PathVariable("id") Long id) {;
+	public Resources<ServiceInstanceResource> getServiceInstances(@PathVariable("id") Long id) {
 		return serviceService.getServiceInstances(id);
 	}
 }

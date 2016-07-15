@@ -39,7 +39,7 @@ public class ServiceServiceImpl implements ServiceService {
 		val serviceServiceInstances = serviceInstances.stream().map(si -> toServiceInstanceResource(si))
 				.collect(Collectors.toList());
 
-		return new Resources<ServiceInstanceResource>(serviceServiceInstances);
+		return new Resources<>(serviceServiceInstances);
 	}
 
 	private ServiceInstanceResource toServiceInstanceResource(ServiceInstance serviceInstance) {
