@@ -37,7 +37,7 @@ public class NodeController {
         return stripNodeCircularProperties(siNodePage);
     }
 
-    @RequestMapping(value = "/{key}/nodeAlertsPage", method = RequestMethod.GET)
+    @RequestMapping(value = "/{key}/nodeAlerts", method = RequestMethod.GET)
     @ResponseBody
     public Page<Node> getServiceInstanceNodeAlerts(@PathVariable("key") String key, Pageable pageable) {
         Page<Node> siNodePage = nodeRepo.findNodeAlertsByServiceInstance(key, pageable);
